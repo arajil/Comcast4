@@ -1,0 +1,122 @@
+package com.programs.memes;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+public class MemeSorterAndScorer {
+
+private static final String filePath = "C:\\tmp\\jsonMemeFile.json";
+public static void main(String[] args) {
+try {
+MemeSorterAndScorer mss = new MemeSorterAndScorer();
+List<Meme> memes = mss.getMemesListFromFile();
+mss.sortMemes(memes);
+mss.calculateLulzScore(memes);
+} catch (Exception e) {
+e.printStackTrace();
+}
+}
+
+private List<Meme> getMemesListFromFile() throws IOException, ParseException {
+FileReader reader = new FileReader(filePath);
+JSONParser jsonParser = new JSONParser();
+JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+JSONArray jsonMemesArray = (JSONArray) jsonObject.get("memes");
+
+Iterator<?> itr = jsonMemesArray.iterator();
+List<Meme> memes = new ArrayList<Meme>();
+while (itr.hasNext()) {
+JSONObject innerObj = (JSONObject) itr.next();
+String name = (String) innerObj.get("name");
+String text = (String) innerObj.get("text");
+memes.add(new Meme(name, text));
+}
+return memes;
+}
+private void sortMemes(List<Meme> memes) {
+Collections.sort(memes);
+
+System.out.println("Sorted list: ");	
+for (Meme meme: memes) {
+System.out.println(meme.getName());
+}
+}
+
+private void calculateLulzScore(List<Meme> memes) throws IOException {
+for (Meme meme: memes) {
+int score = getLulz(meme.getText());
+meme.setLulz(score);
+}
+writeJson(memes);
+}
+
+private int getLulz(String str) {
+int score = (int)(Math.random() * 10.0 + str.length()) % 10 + 1 ;
+return score;
+}
+private void writeJson(List<Meme> memes) throws IOException {
+JSONObject obj = new JSONObject();
+JSONArray memesArr = new JSONArray();
+for (Meme meme: memes) {
+memesArr.add("{ \"name\" : \"" + meme.getName() + "\","
++ "\"text\" : \"" + meme.getText() + "\","
++ "\"lulz\" : " + meme.getLulz() + "}");
+}
+obj.put("memes", memesArr);
+FileWriter file = new FileWriter(filePath);
+        try {
+            file.write(obj.toJSONString());
+        } catch (IOException e) {
+            e.printStackTrace();
+ 
+        } finally {
+            file.flush();
+            file.close();
+        }
+}
+class Meme implements Comparable<Meme> {
+private String name;
+private String text;
+private int lulz = 1;
+public Meme(String name, String text) {
+this.name = name;
+this.text = text;
+}
+public String getName() {
+return name;
+}
+public void setName(String name) {
+this.name = name;
+}
+public String getText() {
+return text;
+}
+public void setText(String text) {
+this.text = text;
+}
+
+@Override
+public int compareTo(Meme meme) {
+return (name.compareTo(meme.getName()));
+}
+
+public int getLulz() {
+return lulz;
+}
+
+public void setLulz(int lulz) {
+this.lulz = lulz;
+}
+}
+
+}
