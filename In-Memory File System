@@ -1,0 +1,225 @@
+package com.program.file;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Scanner;
+
+import com.google.common.io.Files;
+
+public class InMemFileSystem {
+
+	public static void main(String[] args) throws IOException {
+		
+		InMemFileSystem fileSys = new InMemFileSystem();
+		
+		System.out.println("Select one of the following: ");
+		System.out.println("1. Create a new folder");
+		System.out.println("2. Create a new file");
+		System.out.println("3. Add content to a file");
+		System.out.println("4. Copy files");
+		System.out.println("5. Display file contents");
+		System.out.println("6. List folder contents");
+		System.out.println("7. Search for a file by filename");
+		System.out.println("8. Search for a file by filename and Path to folder");
+		System.out.println();
+		System.out.println("Enter any option from 1 to 8");
+		
+		Scanner reader = new Scanner(System.in);
+		int option = reader.nextInt();
+        
+        switch (option) {
+            case 1:  System.out.println("Create a new folder");
+                     System.out.println("Enter Directory Path: ");
+                     Scanner sc1 = new Scanner(System.in);
+                   	 String dirPATH = sc1.next();
+                   	 fileSys.createDirectory(dirPATH);
+                     break;
+            case 2:  System.out.println("Create a new file");
+                     System.out.println("Enter file Path: ");
+                     Scanner sc2 = new Scanner(System.in);
+                     String filePATH = sc2.next();
+                     fileSys.createFile(filePATH);
+                     break;
+            case 3:  System.out.println("Enter the content");
+                		 Scanner content = new Scanner(System.in);
+                		 String text = content.nextLine();
+                		 System.out.println("Enter file Path: ");
+                		 Scanner sc3 = new Scanner(System.in);
+                		 String filePATH1 = sc3.next();
+                		 fileSys.addToFile(filePATH1, text);
+                     break;
+            case 4:  System.out.println("Enter source file");
+			   		         Scanner sc4 = new Scanner(System.in);
+			   		         String source = sc4.next();
+			   		         System.out.println("Enter destination file ");
+			   		         Scanner sc4_1 = new Scanner(System.in);
+			   		         String destn = sc4_1.next();
+			   		         fileSys.copyFile(source, destn);
+                     break;
+            case 5:  System.out.println("Print file content");
+      			         System.out.println("Enter file Path: ");
+      			         Scanner sc5 = new Scanner(System.in);
+      			         String filePATH5 = sc5.next();
+      			         fileSys.readFile(filePATH5);
+                     break;
+            case 6:  System.out.println("Display Directory content");
+    		             System.out.println("Enter Directory Path: ");
+    		             Scanner sc6 = new Scanner(System.in);
+      		        	 String dirPATH6 = sc6.next();
+      		        	 fileSys.listDirContent(dirPATH6);
+                     break;
+            case 7:  System.out.println("Enter file to search");
+                		 Scanner sc7 = new Scanner(System.in);
+                		 String text7 = sc7.next();
+                		 fileSys.searchForFile(text7);
+                     break;
+            case 8:  System.out.println("Enter file to search");
+        			   		 Scanner content1 = new Scanner(System.in);
+        			   		 String text1 = content1.nextLine();
+        			   		 System.out.println("Enter Dir Path: ");
+        			   		 Scanner sc8 = new Scanner(System.in);
+        			   		 String dirPATH1 = sc8.next();
+        			   		 fileSys.searchForFile(dirPATH1, text1);
+                     break;
+            default: 
+            		     System.out.println("Please enter option between 1 to 8 ");
+                     break;
+        }
+	}
+	
+	public void createDirectory(String dirPath)
+	{
+		File file = new File(dirPath); 
+		if (file.exists()) {
+            System.out.println("Directory already exists");
+
+        } else {
+            System.out.println("No such directory exists, creating now");
+            file.mkdir();
+        }
+	}
+	public void createFile(String filePath) throws IOException
+	{
+		
+		Path path = Paths.get(filePath);
+		File file1 = path.getParent().toFile();	
+		
+		File file = new File(filePath);
+	    
+	    if (!file1.exists()) {
+	    	System.out.println("No such dirctory exists, creating now");
+	    	file1.mkdir();
+	    }
+		if (file.exists()) {
+            System.out.println("File already exists");
+
+        } else {
+            System.out.println("No such file exists, creating now");
+            file.createNewFile();
+        }
+    }
+	
+	public void addToFile(String filePath, String input) throws IOException
+	{
+		File file = new File(filePath);
+		
+		if(file.exists())
+		{
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(input);
+			bw.close();
+			System.out.println("Added the text to file");
+		}
+		else
+			System.out.println("No such file exists, Please create a file first");
+	}
+	
+	public void copyFile(String filePath1, String filePath2) throws IOException
+	{
+		File file1 = new File(filePath1);
+		File file2 = new File(filePath2);
+		
+		if(file1.exists())
+		{
+			Files.copy(file1, file2);
+			System.out.println("Source file copied to destination file");
+		}
+		else
+		{
+			System.out.println("File to be copied does not exists");
+		}
+	}
+	
+	public void readFile(String filePath) throws IOException
+	{
+		File file = new File(filePath);
+		
+		if (file.exists())
+		{
+			BufferedReader br = new BufferedReader(new FileReader(filePath));
+			String fileContent;
+			
+			while ((fileContent = br.readLine()) != null) {
+				System.out.println(fileContent);
+			}
+		}
+		else
+			System.out.println("File does not exists");
+	}
+	
+	public void listDirContent(String dirPath)
+	{
+		File directory = new File(dirPath);
+		
+		if(directory.exists()){
+			File[] fList = directory.listFiles();
+			 
+			for (File file : fList){
+				System.out.println(file.getName());
+			}
+		}
+		else
+			System.out.println("Directory does not exists");
+	}
+	
+	public void searchForFile(String fileName)
+	{
+		File directory = new File(".");
+				
+		if(directory.exists()){
+		File[] fList = directory.listFiles();
+					 
+			for (File file : fList){
+				if(file.getName().equalsIgnoreCase(fileName))
+					System.out.println(file.getAbsolutePath());
+			}
+						
+		}
+		else
+			System.out.println("Directory does not exists");
+	}
+	
+	public void searchForFile(String dirPath, String fileName)
+	{
+		File directory = new File(dirPath);
+				
+		if(directory.exists()){
+		File[] fList = directory.listFiles();
+					 
+			for (File file : fList){
+				if(file.getName().equalsIgnoreCase(fileName))
+					System.out.println(file.getAbsolutePath());
+			}
+						
+		}
+		else
+			System.out.println("Directory does not exists");
+	}
+}
