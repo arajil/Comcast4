@@ -1,0 +1,35 @@
+package com.program.file;
+
+public class CalculateTax {
+
+	private float MIN_TAX = 1.0f;
+	private float MAX_TAX = 9.0f;
+	
+	public static void main(String[] args) {
+		CalculateTax ct = new CalculateTax();
+		ct.findTax("luxury", "10.50");
+		ct.findTax("Necessity", "12.00");
+	}
+	
+	public void findTax(String itemType, String price)
+	{
+		float fPrice = Float.valueOf(price);
+		float cents = fPrice * 100;
+		float tax = 0;
+		float total = 0;
+		if (itemType.equalsIgnoreCase("Necessity"))
+		{
+			tax = (cents * MIN_TAX)/100;
+			total = cents + tax;
+		}
+		else if(itemType.equalsIgnoreCase("Luxury"))
+		{
+			tax = (cents * MAX_TAX)/100;
+			total = cents + tax;
+		}
+		total = total/100;
+		System.out.format("TotalPrice is: %.2f", total);
+		System.out.println();
+	}
+
+}
